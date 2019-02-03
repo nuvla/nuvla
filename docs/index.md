@@ -1,6 +1,16 @@
 ---
-# Feel free to add content and custom Front Matter to this file.
-# To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
-
 layout: home
+title: Overview
+nav_order: 1
+description: "Nuvla: comprehensive cloud-to-edge management platform."
+permalink: /
 ---
+
+# Nuvla
+
+Nuvla is a comprehensive cloud-to-edge management platform.
+
+## Overview
+
+This documentation is intended for end-users of a Nuvla platform. 
+
