@@ -24,6 +24,7 @@ github_username: nuvla
 # Build settings
 markdown: kramdown
 theme: just-the-docs
+remote_theme: just-the-docs
 
 # Theme configuration.
 search_enabled: true
