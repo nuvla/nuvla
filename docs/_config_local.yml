@@ -1,0 +1,4 @@
+
+# This is needed to run the server locally with the correct theme.
+# See the README.md file for the command to start a local server.
+theme: just-the-docs
