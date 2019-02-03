@@ -40,6 +40,9 @@ Finally, build and serve the documentation with the following command:
 bundle exec jekyll serve --watch --baseurl "" --config _config_local.yml,_config.yml
 ```
 
+The startup logging will indicate the server's URL; this is usually
+http://127.0.0.1:4000/.
+
 The double configuration files are required to allow the content to be
 served locally and also on GitHub pages without build errors in either
 place.
