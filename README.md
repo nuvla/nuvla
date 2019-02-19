@@ -13,6 +13,9 @@ within the Nuvla organization on GitHub.
 
 ## Build Status
 
+The Travis CI [Nuvla build page](https://travis-ci.com/nuvla) contains
+more information on the latest builds.
+
 | repository | status |
 | ---- | ---- |
 | clojure-library | [![Build Status](https://travis-ci.com/nuvla/clojure-library.svg?branch=master)](https://travis-ci.com/nuvla/clojure-library) |
