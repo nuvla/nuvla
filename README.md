@@ -11,6 +11,16 @@ This repository contains the core documentation for the platform:
 The code for the platform can be found in the other repositories
 within the Nuvla organization on GitHub.
 
+## Build Status
+
+--- | --- |
+clojure-library | [![Build Status](https://travis-ci.com/nuvla/clojure-library.svg?branch=master)](https://travis-ci.com/nuvla/clojure-library) |
+python-library | [![Build Status](https://travis-ci.com/nuvla/python-library.svg?branch=master)](https://travis-ci.com/nuvla/python-library) |
+ring | [![Build Status](https://travis-ci.com/nuvla/ring.svg?branch=master)](https://travis-ci.com/nuvla/ring) |
+api-server | [![Build Status](https://travis-ci.com/nuvla/api-server.svg?branch=master)](https://travis-ci.com/nuvla/api-server) |
+ui | [![Build Status](https://travis-ci.com/nuvla/ui.svg?branch=master)](https://travis-ci.com/nuvla/ui) |
+job-engine | [![Build Status](https://travis-ci.com/nuvla/job-engine.svg?branch=master)](https://travis-ci.com/nuvla/job-engine) |
+
 ## Copyright
 
 Copyright &copy; 2019, SixSq Sàrl
