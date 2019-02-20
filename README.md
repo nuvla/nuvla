@@ -24,6 +24,7 @@ more information on the latest builds.
 | api-server | [![Build Status](https://travis-ci.com/nuvla/api-server.svg?branch=master)](https://travis-ci.com/nuvla/api-server) |
 | ui | [![Build Status](https://travis-ci.com/nuvla/ui.svg?branch=master)](https://travis-ci.com/nuvla/ui) |
 | job-engine | [![Build Status](https://travis-ci.com/nuvla/job-engine.svg?branch=master)](https://travis-ci.com/nuvla/job-engine) |
+| job-tools | [![Build Status](https://travis-ci.com/nuvla/job-tools.svg?branch=master)](https://travis-ci.com/nuvla/job-tools) |
 
 ## Copyright
 
