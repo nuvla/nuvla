@@ -71,7 +71,7 @@ objects.
 The following diagram provides an overview of the workflow for
 creating a `data-object` resource.
 
-![Workflow to Create Data-Object Resource]({{ site.url }}/docs/users/assets/data-object-create.png)
+![Workflow to Create Data-Object Resource]({{ site.url }}{{ site.baseurl }}/docs/users/assets/data-object-create.png)
 
 The workflow consists of the following steps:
 
@@ -94,7 +94,7 @@ The data can be consumed by others via the "download" action only when
 the object has been marked as "ready".  When the object is "ready" the
 object data can no longer be modified.
 
-![Workflow to Read Data-Object Resource]({{ site.url }}/docs/users/assets/data-object-read.png)
+![Workflow to Read Data-Object Resource]({{ site.url }}{{ site.baseurl }}/docs/users/assets/data-object-read.png)
 
 The workflow consists of the following steps:
 
@@ -111,7 +111,7 @@ transfer occurs uses the highest possible bandwidth.
 
 The data object and underlying S3 object can be deleted. 
 
-![Workflow to Delete Data-Object Resource]({{ site.url }}/docs/users/assets/data-object-delete.png)
+![Workflow to Delete Data-Object Resource]({{ site.url }}{{ site.baseurl }}/docs/users/assets/data-object-delete.png)
 
 The workflow consists of the following steps:
 
