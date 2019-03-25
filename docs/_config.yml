@@ -23,6 +23,7 @@ github_username: nuvla
 
 # Build settings
 markdown: kramdown
+highlighter: rouge
 remote_theme: pmarsceill/just-the-docs
 
 # Theme configuration.

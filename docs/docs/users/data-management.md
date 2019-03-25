@@ -131,19 +131,60 @@ Nuvla or the underlying S3.
 
 ## Data-Record Resources
 
-Provides rich metadata for a `data-object`.
+The `data-record` resources provide rich metadata for data objects,
+either created through `data-object` resources in Nuvla or
+externally.
 
- - Provides an open schema to allow collaborations to provide their
-   own metadata for data-object resources.
+These resources are simply JSON documents that are searched, created,
+updated, and deleted via the standard SCRUD patterns of the API.
 
- - Simple filter syntax can use any defined attributes to refine
-   queries over the stored objects.
+Aside from a small set of predefined keys, the schema for the
+`data-record` resources is open, allowing users, managers, and
+administrators to attach their own domain-specific metadata to a data
+object.
 
- - Forced definition of prefixes avoids name conflicts between
-   collaborations.
+An example `data-record` resource looks like the following:
 
- - Recommended definition of keys provides semantic information for
-   humans creating the metadata.
+```json
+{
+  "id": "data-record/1e48a9d1-9a26-453c-b392-13e179fd53b4",
+  "resource-type": "data-record",
+  "name": "data-object-1",
+  "description": "data-object-1 description",
+  "created": "2019-03-14T16:16:04.768Z",
+  "updated": "2019-03-14T16:16:04.768Z",
+  
+  "infrastructure-service": "infrastructure-service/b3ec10fb-086e-42f2-8fdb-a215f6ef2089",
+
+  "resource:protocol": "NFS",
+  "resource:object": "data-object/6a1be147871c7a542ccd0047b5a03b20"
+  
+  "data:bucket": "new-bucket-for-tests",
+  "data:object": "new-object-for-tests",
+  "data:content-type": "text/plain",
+  "data:bytes": 1024,
+  "data:timestamp": "2019-03-14T16:16:04Z",
+
+  "data:nfsIP": "159.100.242.78",
+  "data:nfsDevice": "/nfs-root",
+  
+  "data:protocols": [
+    "tcp+nfs"
+  ],
+
+  "gnss:mission": "random"
+}
+```
+
+> **WARNING**: Although the schema is open, all the key prefixes must
+> be defined as `data-record-key-prefix` resources. Having prefixed
+> attributes avoids collisions between domains. Only the Nuvla
+> administrator can define these prefixes.
+
+> **NOTE**: It is strongly recommended to provide a `data-record-key`
+> resource for each domain-specific key. These resources provide
+> semantic information about the key to help humans provide the right
+> information.
 
 ### Managing Data-Record Resources with the API
 
@@ -151,18 +192,37 @@ Provides rich metadata for a `data-object`.
 
 ## Data-Set Resources
 
-Provides dynamic grouping of “data-object” resources.
+The `data-set` resources define dynamic collections of `data-object`
+and/or `data-record` resources based on filters over those resources.
+The `data-set` resource can also identify appropriate applications
+based on file types or other criteria.
 
-A data set definition contains filters for:
+These resources are simply JSON documents that are searched, created,
+updated, and deleted via the standard SCRUD patterns of the API.
 
- - data-object resources,
+An example `data-set` resource looks like the following:
 
- - data-record resources, and/or
+```json
+{
+  "id": "data-set/ca96c2c1-317f-40cf-b9f3-8ebd0d87e7a2",
+  "resource-type": "data-set",
+  "name": "GREAT (CLK)",
+  "description": "GREAT (CLK) data at ESA",
+  "created": "2019-03-14T16:16:03.406Z",
+  "updated": "2019-03-14T16:16:03.406Z",
+  
+  "module-filter": "data-accept-content-types='application/x-clk'",
+  "data-record-filter": "gnss:mission='great' and data:contentType='application/x-clk'"
+}
+```
 
- - linked applications.
+This `data-set` selects only `data-record` resources related to the
+GNSS mission "great" and have a content type of
+`application/x-clk`. The `data-set` also identifies appropriate
+applications based on this content type via the `module-filter` value.
 
-Users can create their own data sets by filtering the existing objects
-and share data set definitions with others.
+Any user can define their own data sets and share those definitions
+with others by setting an appropriate ACL.
 
 ### Managing Data-Set Resources with the API
 
