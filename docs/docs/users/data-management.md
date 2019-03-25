@@ -7,45 +7,131 @@ nav_order: 1
 
 # Data Management
 
-The data management infrastructure takes advantage of object storage
-services that expose the S3 protocol, a _de facto_ standard from
-Amazon Web Services.
+Services based on Amazon's S3 protocol for object storage are
+ubiquitous and have many advantages in terms of cost, scalability, and
+use of use. Unfortunately in a distributed environment, they also have
+a couple critical deficiencies: searching via stored metadata is
+inefficient and there are no facilities for federating S3 services
+from different providers.
 
-## Model
+The Nuvla data management model takes advantage of the positive
+aspects of S3, while providing global management of metadata for
+efficient search across providers.
 
-Write-Once, Read-Mostly (WORM) semantics
+## WORM Model
 
-Provides best guarantees for consistency and integrity in distributed
-environment.  Facilitates replication of data objects for increased
-performance or for redundancy.  Versioning in WORM model allows for
-“updatable” objects.
+The data management model follows Write-Once, Read-Mostly (WORM)
+semantics.  This model:
 
-Streaming is supported, but expected to be limited mostly to direct
-sensor data at the edge.
+ - Optimizes read access to data, simplifying access to the data via
+   the underlying services and improving performance.
+   
+ - Facilitates the replication of data objects, allowing "hot" data to
+   be accessed efficiently on multiple providers.
 
-## `data-object` Resources
+ - Improves the reproducibility of data analyses by providing unique
+   identifiers for "versions" of data objects.
 
-Represents a blob of data (“file”) stored as an S3 object
+Applications can also read data directly from other sources as
+necessary. For example, an application can read streamed data directly
+from a sensor, something common at the edge of the hybrid computing
+platform.
 
- - Ubiquity: S3 is a de facto standard available everywhere.
- 
- - Performance: data directly stored to and accessed from the S3
-   service.
- 
- - Security: use of time-limited, pre-signed S3 requests, allows
-   uniform AA model based on SlipStream users and ACLs.
- 
- - Global View: collection of “data-object” resources provides global
-   view of available data across all computing infrastructures.
- 
- - Core Metadata: can provide name, description, tags, size, checksum
-   etc. for simple searches over the available data.
+Concretely, the implementation consists of three Nuvla resources:
 
-### Managing `data-object` Resources with the API
+ - `data-object`: This resource is a proxy for data stored in a
+   bucket/object within S3 from a given provider.  This resource
+   manages the lifecycle of an S3 object, allowing easy upload and
+   download of the data.
 
-## `data-record` Resources
+ - `data-record`: This resource provides additional, user-specified
+   metadata for an object.  This allows rich, domain-specific metadata
+   to be attached to objects and consequently, precise searching for
+   relevant data objects.
 
-Provides rich metadata for a “data-object”.
+ - `data-set`: This resources defines *dynamic* collections of
+   `data-object` and/or `data-record` resources via filters. These can
+   be defined by administrators, managers, or users.
+
+Together, these provide a flexible data management framework,
+applicable to a wide range of use cases. The usual (simplified)
+workflow consists of 1) creating a `data-object` (and implicitly the
+S3 object), 2) optionally adding rich metadata in a `data-record`
+object, and 3) finding (and using) the `data-object` resources
+included in a `data-set`.
+
+## Data-Object Resources
+
+The `data-object` resource allows users to create S3 objects on
+service providers and to store simple metadata concerning those
+objects.
+
+### Creating
+
+The following diagram provides an overview of the workflow for
+creating a `data-object` resource.
+
+![Workflow to Create Data-Object Resource]({{ site.url }}/docs/users/assets/data-object-create.png)
+
+The workflow consists of the following steps:
+
+1. Create data-object resource by providing bucket, object, and S3
+   credential.
+
+2. Request pre-signed upload URL via “upload” action.
+
+3. Use pre-signed upload URL to upload object contents to S3.
+
+4. Mark object as “ready” (and read-only) via the “ready” action.
+
+Note that the bucket that will contain the data **must already
+exist**. (Future versions will create the bucket automatically for
+you.) The object will be created when you upload the data to S3.
+
+### Reading
+
+The data can be consumed by others via the "download" action only when
+the object has been marked as "ready".  When the object is "ready" the
+object data can no longer be modified.
+
+![Workflow to Read Data-Object Resource]({{ site.url }}/docs/users/assets/data-object-read.png)
+
+The workflow consists of the following steps:
+
+1. Request pre-signed download URL via the “download” action.
+
+2. Use pre-signed download URL to download object contents from S3.
+
+Note that only the pre-signed URL is generated by the Nuvla
+server. The heavyweight access to the data itself passes directly
+between the client and the provider's S3. This ensures that the data
+transfer occurs uses the highest possible bandwidth.
+
+### Deleting
+
+The data object and underlying S3 object can be deleted. 
+
+![Workflow to Delete Data-Object Resource]({{ site.url }}/docs/users/assets/data-object-delete.png)
+
+The workflow consists of the following steps:
+
+1. Request to delete the data-object resource via the HTTP DELETE
+   request.
+
+2. Server verifies access and deletes object from S3.
+
+3. Server also deletes the bucket if it is empty.
+
+Once the object is deleted, it is no longer accessible either through
+Nuvla or the underlying S3. 
+
+### Managing Data-Object Resources with the API
+
+**TDB**
+
+## Data-Record Resources
+
+Provides rich metadata for a `data-object`.
 
  - Provides an open schema to allow collaborations to provide their
    own metadata for data-object resources.
@@ -59,9 +145,11 @@ Provides rich metadata for a “data-object”.
  - Recommended definition of keys provides semantic information for
    humans creating the metadata.
 
-### Managing `data-record` Resources with the API
+### Managing Data-Record Resources with the API
 
-## `data-set` Resources
+**TDB**
+
+## Data-Set Resources
 
 Provides dynamic grouping of “data-object” resources.
 
@@ -76,5 +164,6 @@ A data set definition contains filters for:
 Users can create their own data sets by filtering the existing objects
 and share data set definitions with others.
 
-### Managing `data-set` Resources with the API
+### Managing Data-Set Resources with the API
 
+**TDB**
