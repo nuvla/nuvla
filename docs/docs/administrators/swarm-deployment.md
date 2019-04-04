@@ -16,20 +16,16 @@ SixSq manages and maintains its public Nuvla service:
  - URL: https://nuv.la
  - IPv4: 89.145.167.118
  
-All the features developed for the GNSS Big Data CCN are included in
-the production release of SlipStream and have been deployed on Nuvla.
-
-ESA firewall rules **must** be setup to allow inbound access to the
+Site's firewall rules **must** be setup to allow inbound access to the
 Docker Swarm API and to the Minio S3 interface (if deployed).
 
-End users **must** register for accounts on Nuvla to use the embedded
-Nuvla interface.  Accounts are free. 
+End users **must** register for accounts on Nuvla.  Accounts are free. 
 
 
-Swarm (ESA)
------------
+Docker Swarm
+------------
 
-ESA must deploy and maintain a Docker Swarm cluster on-site as a
+Site must deploy and maintain a Docker Swarm cluster on-site as a
 computational backend for applications deployed through Nuvla.
 
 Follow any of the standard guides for installing Docker Swarm. SixSq
@@ -37,7 +33,7 @@ deploys its Swarm infrastructure on Ubuntu 16.04, but any functioning
 Swarm infrastructure is acceptable.
 
 The size and number of worker nodes to deploy depends entirely on the
-foreseen workload. The test Docker Swarm cluster that has been used
+foreseen workload. A test Docker Swarm cluster that has been used by SixSq
 for demonstrations consists on 1 master and 2 workers, all of which
 have 4 vCPUs, 8 GB RAM, and 20 GB disk.
 
@@ -47,6 +43,9 @@ allow authenticated access to the API.  The process we follow to do
 this is:
 
 ```sh
+#
+# You must set HOSTNAME, PASSPHRASE and modify -subj to match our organisation.
+
 DOCKER_TLS=/etc/docker/tls
 
 mkdir -p $DOCKER_TLS
@@ -99,10 +98,10 @@ credential that allows access to the Swarm API endpoint for testing
 and monitoring purposes.
 
 
-NFS (ESA)
----------
+NFS
+---
 
-The GNSS data "objects" must be stored within an NFS infrastructure to
+User data "objects" must be stored within an NFS infrastructure to
 allow those objects to be mounted on containers as volumes.  Although
 optional, we recommend that these object also be made available via S3
 (see Minio section below).
@@ -125,16 +124,16 @@ If using Minio for an S3 interface, you must allow that service to
 access the NFS server as well.
 
 
-Minio (ESA)
------------
+Minio
+-----
 
-Minio (https://www.minio.io/) is a container-based service that
+Minio [https://www.minio.io/](https://www.minio.io/) is a container-based service that
 provides a compliant S3 interface for a number of storage backends.
 Here, we recommend that Minio be deployed with the NFS server as the
 storage backend.
 
 Deploying this service is optional. However, by deploying this, it
-allows users to take advantage of the SlipStream's "external object"
+allows users to take advantage of the Nuvla's "external object"
 resources, which among other features, allows convenient upload and
 download of data objects.
 
