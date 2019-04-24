@@ -23,11 +23,20 @@ deployed for Nuvla:
    monitoring. Persistent volumes are needed to back the Elasticsearch
    database in production environments.
 
-Before starting, review the entire deployment procedure. You may need
-to customize the provided Docker Compose files.
+In both cases, persistent volumes are needed for data persistency in
+production environments.
+
+Before starting an installation, review the entire deployment
+procedure. You may need to customize the provided Docker Compose
+files.
 
 The following sections describe each step of the deployment and
-configuration of a Docker Swarm infrastructure for use with Nuvla.
+configuration of a Docker Swarm infrastructure for use with Nuvla. For
+the Docker Swarm installation you will want to clone the
+[nuvla/deployment](https://github.com/nuvla/deployment) GitHub
+repository to a machine from which you will manage the cluster; for
+the other steps in the configuration, you'll want to clone this
+repository to the master node of the cluster.
 
 ## Docker Swarm Cluster
 
