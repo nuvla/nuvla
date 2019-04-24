@@ -1,142 +1,202 @@
 ---
 layout: default
-title: Infrastructure Deployment
+title: Docker Swarm Infrastructures
 parent: Administrators
 nav_order: 1
 ---
 
-Infrastructrue Deployment
-=========================
+Docker Swarm Infrastructures
+============================
 
-Firewall Rules
---------------
+There are two types of Docker Swarm infrastructures that can be
+deployed for Nuvla:
 
-SixSq manages and maintains its public Nuvla service: 
+ - **target**: A Docker Swarm infrastructure on which Nuvla will
+   **deploy** containers.  This is a basic deployment of Swarm with
+   Minio/NFS for data access and Prometheus for monitoring. Persistent
+   volumes are needed for data storage in production environments.
+   Nuvla can be configured to deploy to any number of target Docker
+   Swarm infrastructures.
 
- - URL: https://nuv.la
- - IPv4: 89.145.167.118
- 
-Site's firewall rules **must** be setup to allow inbound access to the
-Docker Swarm API and to the Minio S3 interface (if deployed).
+ - **host**: A Docker Swarm infrastructure that will **host** a Nuvla
+   deployment. This is a basic deployment of Swarm with Prometheus for
+   monitoring. Persistent volumes are needed to back the Elasticsearch
+   database in production environments.
 
-End users **must** register for accounts on Nuvla.  Accounts are free. 
+Before starting, review the entire deployment procedure. You may need
+to customize the provided Docker Compose files.
 
+The following sections describe each step of the deployment and
+configuration of a Docker Swarm infrastructure for use with Nuvla.
 
-Docker Swarm
-------------
+## Docker Swarm Cluster
 
-Site must deploy and maintain a Docker Swarm cluster on-site as a
-computational backend for applications deployed through Nuvla.
+Docker Swarm clusters provide the computational platforms that Nuvla
+uses to deploy container-based applications, including Nuvla itself.
 
-Follow any of the standard guides for installing Docker Swarm. SixSq
-deploys its Swarm infrastructure on Ubuntu 16.04, but any functioning
-Swarm infrastructure is acceptable.
+Any method can be used to deploy a Docker Swarm cluster.  See the
+[Docker Swarm documentation](https://docs.docker.com/engine/swarm/)
+for an overview of Docker Swarm and how to deploy it.
+
+You may want to consider [Docker
+Machine](https://docs.docker.com/machine/) for installation; it
+automates the deployment of a Docker Swarm cluster on a cloud
+infrastructure. The script `deploy-swarm-exoscale.sh` will use Docker
+Machine to deploy a Swarm cluster on the
+[Exoscale](https://exoscale.ch) cloud. This script can be modified to
+use a different cloud driver or to customization the configuration.
+
+If you want to use the `swarm-deploy-exoscale.sh` script (or a variant
+of it) to deploy your Docker Swarm infrastructure, first clone the
+[nuvla/deployment](https://github.com/nuvla/deployment) GitHub
+repository to a convenient Linux/Unix machine.
+
+Descend into the `swarm` subdirectory and copy `env-example.sh` to
+`env.sh`. Edit this file, changing the values of the variables to
+customize your installation. Afterwards, run:
+
+    source env.sh
+
+to set all of the environmental variables for the Swarm management
+script. 
+
+Note that Docker Machine uses SSH to communicate with the virtual
+machines of the cluster. By default the key `${HOME}/.ssh/id_rsa` will
+be used (or created if it does not exist). If you want to use a
+different key, then set the environmental variable `SSH_KEY` in the
+`env.sh` file.
+
+**WARNING**: Use an SSH key **WITHOUT** a password. If you use one
+with a password, you will be prompted for it, repeatedly. To generate
+a new SSH key without a password just set SSH_KEY to a file that does
+not exist.
+
+The command to use to create the cluster is:
+
+    ./swarm-deploy-exoscale.sh deploy 3
+
+This creates a cluster with one master and two workers (three nodes in
+total). If you do not provide the second argument, it defaults to one.
 
 The size and number of worker nodes to deploy depends entirely on the
-foreseen workload. A test Docker Swarm cluster that has been used by SixSq
-for demonstrations consists on 1 master and 2 workers, all of which
-have 4 vCPUs, 8 GB RAM, and 20 GB disk.
+foreseen workload. The script uses "Large" instances that have 4
+vCPUs, 8 GB RAM, and 50 GB disk.
 
-The Swarm deployment must be configured to use TLS. You must generate
-at least one client certificate (and more likely one per user) to
-allow authenticated access to the API.  The process we follow to do
-this is:
+You will want to note the IP addresses of the Docker Swarm master and
+workers (if any). You can recover these IP addresses by running the
+command `docker-machine ls` if necessary.
 
-```sh
-#
-# You must set HOSTNAME, PASSPHRASE and modify -subj to match our organisation.
+## Cluster Firewall Rules
 
-DOCKER_TLS=/etc/docker/tls
+For a **target** infrastructure, the Nuvla service **must** be able to
+access the services on the cluster. The site's firewall rules must be
+setup to allow **inbound access** to the Docker Swarm API (normally on
+HTTPS port 443) and to the Minio S3 interface (normally on port 9000)
+if deployed.
 
-mkdir -p $DOCKER_TLS
-cd $DOCKER_TLS
+In addition, you will want to allow users to access applications that
+they've deployed on the infrastructure. To do this, make sure that
+**inbound access** is possible for all ephemeral ports from anywhere
+(or at least from all IPs addresses of your users). The range of
+ephemeral ports can be configured via the kernel parameter
+`/proc/sys/net/ipv4/ip_local_port_range`.
 
-openssl genrsa -aes256 -out ca-key.pem -passout pass:$PASSPHRASE 4096
-openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem -passin pass:$PASSPHRASE -subj "/C=CH/L=Geneva/O=SixSq/CN=$HOSTNAME"
-openssl genrsa -out server-key.pem 4096
-openssl req -subj "/CN=$HOSTNAME" -sha256 -new -key server-key.pem -out server.csr
+For a **host** infrastructure, the firewall must be configured to
+allow **inbound access** to the HTTP (80) and HTTPS (443) ports.
 
-echo subjectAltName = DNS:$HOSTNAME,IP:10.10.10.20,IP:127.0.0.1 > extfile.cnf
-openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem   -CAcreateserial -out server-cert.pem -extfile extfile.cnf -passin pass:$PASSPHRASE
+For both types of infrastructures, you will want to allow inbound
+access to for Prometheus (port 3000) from the IP addresses from which
+you will monitor the infrastructure.
 
-# Generate client credentials
-openssl genrsa -out key.pem 4096
-openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+## Create Public Network
 
-echo extendedKeyUsage = clientAuth > extfile.cnf
-openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem   -CAcreateserial -out cert.pem -extfile extfile.cnf -passin pass:$PASSPHRASE
+The various components (both Nuvla components and other required
+components) will use an "external" network when making services
+available outside of the Docker Swarm cluster. 
 
-# cleanup
-rm -v client.csr server.csr
-chmod -v 0400 ca-key.pem key.pem server-key.pem
-chmod -v 0444 ca.pem server-cert.pem cert.pem
+Create a public overlay network with the command:
 
-# configure docker drop-in
-mkdir -p /etc/systemd/system/docker.service.d/
-cat >>/etc/systemd/system/docker.service.d/docker-tcp.conf <<EOF
-[Service]
-ExecStart=
-ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=$DOCKER_TLS/ca.pem --tlscert=$DOCKER_TLS/server-cert.pem --tlskey=$DOCKER_TLS/server-key.pem -H=0.0.0.0:2376 -H unix:///var/run/docker.sock
-EOF
+    docker network create --driver=overlay traefik-public
 
-systemctl daemon-reload
-```
+The name "traefik-public" is hardcoded in many of the docker-compose
+files. If you want to use a different name, you'll need to update
+those files.
 
-Each user must create a "docker cloud credential" resource within
-Nuvla to access the Docker Swarm infrastructure through Nuvla.  If
-desired, these credentials can be shared with multiple users.
+## Deploy Traefik
 
-The firewall must be opened to allow Nuvla inbound access to the
-Docker Swarm API endpoint.  Typically this is running on the port
-2376, although it can be configured on any port.
+Traefik is a general router and load balancer. You can deploy it
+(again for use by other components) with the command:
 
-Once the Docker Swarm cluster is operational, contact SixSq Support
-(support@sixsq.com) to arrange for the creation of a "cloud connector"
-within Nuvla.  This will allow applications to be deployed to the
-cluster through Nuvla. You will also need to provide a client
-credential that allows access to the Swarm API endpoint for testing
-and monitoring purposes.
+    cd traefik
+    docker-compose up
 
+If you want to change the name of the public network, the compose file
+must be modified.
 
-NFS
----
+## Monitoring
 
-User data "objects" must be stored within an NFS infrastructure to
-allow those objects to be mounted on containers as volumes.  Although
-optional, we recommend that these object also be made available via S3
-(see Minio section below).
+Having an overview of the activity on the Docker Swarm cluster is
+extremely helpful in understanding the overall load and for diagnosing
+any problems that arise. We recommend using Prometheus to monitor the
+cluster.
 
-Deploy a standard NFSv4 server.  The size of the server (or cluster)
-depends on the volume of data that you expect to host.
+To deploy Prometheus with the standard configuration, run the command:
 
-Configure the NFS server to allow all the nodes in the Swarm cluster
-to mount directories from the server.  Example entries in the
-`/etc/exports` file are:
+    cd monitoring
+    docker stack deploy -c docker-compose.yml prometheus
 
-    /data/gnss-gnss-swarm-20181201t230000z *(ro,sync,no_subtree_check)
-    /data/minio *(rw,sync,no_subtree_check)
+The service will be available at the URL `http://master-ip:3000/`. 
 
-Here the access is controlled via a firewall, allowing the use of
-wildcard rules.  Alternatively, the hosts can be listed explicitly in
-the `/etc/exports` file.
+## NFS
 
-If using Minio for an S3 interface, you must allow that service to
-access the NFS server as well.
+To allow for user data "objects" to be accessed via POSIX from within
+containers, the nodes hosting the Docker Swarm cluster must have NFS
+installed.  This is optional, but strongly recommended.
 
+If you are deploying a **target** infrastructure, then be sure that
+**all** nodes have the NFS client software installed.
 
-Minio
------
+This can be done, for example on Ubuntu, by accessing the nodes as
+`root` via SSH and running the command:
 
-Minio [https://www.minio.io/](https://www.minio.io/) is a container-based service that
-provides a compliant S3 interface for a number of storage backends.
-Here, we recommend that Minio be deployed with the NFS server as the
-storage backend.
+    apt-get update
+    apt-get install nfs-kernel-server
 
-Deploying this service is optional. However, by deploying this, it
-allows users to take advantage of the Nuvla's "external object"
-resources, which among other features, allows convenient upload and
-download of data objects.
+(Note: this actually installs the server as well; easier than just
+installing the client alone.)
 
-Follow the standard installation instructions for Minio using the NAS
-backend.  You will need to allow Minio client access to your NFS
-server.
+If you use one of the Swarm nodes (e.g. the master) as the NFS server,
+be sure that the NFS daemon is installed there.
+
+On the NFS server, create the directory that will be shared with all
+nodes of the Swarm cluster.  The commands to do this on Ubuntu are:
+
+    NFS_SHARE='/nfs-root'
+    mkdir ${NFS_SHARE}
+    chown nobody:nogroup ${NFS_SHARE}
+    chmod 777 ${NFS_SHARE}
+    echo -e "${NFS_SHARE} *(ro,sync,no_subtree_check)" >> /etc/exports
+    exportfs -a
+    systemctl enable nfs-kernel-server
+    systemctl restart nfs-kernel-server
+
+Note that this configuration allows any node within the cluster to
+mount the volumes.  If the network is open to nodes outside the
+cluster, you may want to provide an explicit list of allowed hosts.
+
+## Minio (S3)
+
+The data management services rely on the availability of an
+S3-compatible service on the **target** Docker Swarm
+infrastructures. Minio is a container-based implementation that can
+expose NFS volumes via the S3 protocol.
+
+For **target** infrastructures, you can deploy Minio with:
+
+    cd minio
+    docker stack deploy -c docker-compose.yml minio
+
+The service will be available at the URL `http://master-ip:9000/`. The
+default username/password will be admin/admin, if you've not changed
+them in the configuration.
+
