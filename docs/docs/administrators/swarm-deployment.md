@@ -2,7 +2,7 @@
 layout: default
 title: Docker Swarm Infrastructures
 parent: Administrators
-nav_order: 1
+nav_order: 2
 ---
 
 Docker Swarm Infrastructures

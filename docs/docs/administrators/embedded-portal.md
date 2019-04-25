@@ -2,7 +2,7 @@
 layout: default
 title: Embedded Portal
 parent: Administrators
-nav_order: 2
+nav_order: 3
 ---
 
 Embedded Portal
