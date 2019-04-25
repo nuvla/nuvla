@@ -53,8 +53,8 @@ Machine. Clone this repository:
 to a machine that will be convenient for managing your cluster.
 
 This script uses Docker Machine to deploy a Swarm cluster on the
-[Exoscale](https://exoscale.ch) cloud. This script can be modified to
-use a different cloud driver or to customize the configuration.
+[Exoscale](https://exoscale.ch) cloud. Customize this script to change
+the cloud driver or the sizes of machines deployed.
 
 In your cloned repository, descend into the `swarm` subdirectory and
 copy `env-example.sh` to `env.sh`. Edit this file, changing the values
@@ -98,7 +98,8 @@ You can access your machines with:
 
     docker-machine ssh dockermachine-1556097484
     
-using the name of the machine provided in the machine listing.
+using the name of the machine provided in the machine listing. This
+may be a non-root account; to become root use the command `sudo su -`.
 
 To tear down the Swarm cluster use the command:
 
