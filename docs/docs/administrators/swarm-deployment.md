@@ -129,6 +129,7 @@ infrastructures:
 | 22 (TCP) | ssh |  management nodes |
 | 8080 (TCP) | traefik |  management nodes | 
 | 4789 (UDP), 7946 (UDP, TCP) | docker |  cluster nodes |
+| 111 (UDP, TCP), 2049 (UDP, TCP), 33333 (UDP, TCP) | nfs |  cluster nodes |
 | 2376-2377 (TCP) | docker |  Nuvla |
 | 80 (TCP), 443 (TCP) | http(s) |  Nuvla, users |
 | 32768-60999 (TCP) | ephemeral ports |  users |
@@ -163,8 +164,13 @@ Create a public overlay network with the command:
     docker network create --driver=overlay traefik-public
 
 The name "traefik-public" is hardcoded in many of the docker-compose
-files. If you want to use a different name, you'll need to update
-those files.
+files. If you want to use a different name, you'll need to search for
+the "traefik-public" references and update those files.
+
+> **NOTE**: For debugging purposes, you may want to add the
+> `--attachable` option when creating the network.  This allows you to
+> start containers on the network and directly access the services
+> there. Generally, you should not use this option in production.
 
 ## Deploy Traefik
 
@@ -184,7 +190,7 @@ To deploy an infrastructure for test or demonstration purposes, use
 the traefik configuration that uses self-signed certificates. You can
 find this in the `swarm/traefik` subdirectory of the repository. 
 
-To deploy traefik:
+To deploy traefik do the following on the master node of the cluster:
 
     cd traefik
     ./generate-certificates.sh
@@ -192,9 +198,6 @@ To deploy traefik:
 
 This will generate temporary, self-signed certificates and bring up
 traefik.
-
-If you want to change the name of the public network, the compose file
-must be modified.
 
 ### Let's Encrypt
 
@@ -230,7 +233,16 @@ version of the nuvla/deployment repository), run the command:
     cd monitoring
     docker stack deploy -c docker-compose.yml prometheus
 
-The service will be available at the URL `http://master-ip:3000/`. 
+The service will be available at the URL `https://master-ip/prometheus`.
+The following services will appear:
+
+| service | URL |
+| --- | --- |
+| grafana | https://master-ip/grafana | monitoring dashboard |
+| prometheus | https://master-ip/prometheus | Prometheus administration |
+
+Normally, you will only be interested in the Grafana dashboard, which
+provides a visual overview of the Swarm cluster operation.
 
 ## NFS
 
@@ -273,15 +285,16 @@ cluster, you may want to provide an explicit list of allowed hosts.
 
 The data management services rely on the availability of an
 S3-compatible service on the **target** Docker Swarm
-infrastructures. Minio is a container-based implementation that can
-expose NFS volumes via the S3 protocol.
+infrastructures.
 
-For **target** infrastructures, you can deploy Minio with:
+Minio is a container-based implementation that can expose NFS volumes
+via the S3 protocol. For **target** infrastructures, you can deploy
+Minio with:
 
     cd minio
     docker stack deploy -c docker-compose.yml minio
 
-The service will be available at the URL `http://master-ip:9000/`. The
+The service will be available at the URL `https://master-ip/minio`. The
 default username/password will be admin/admin, if you've not changed
 them in the configuration.
 
