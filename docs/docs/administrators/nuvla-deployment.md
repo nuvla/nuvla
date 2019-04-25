@@ -31,7 +31,7 @@ repository contains files that will help you deploy Nuvla.
 
 Review the requirements for the **host** Docker Swarm cluster that you
 will use to deploy Nuvla. These can be found in the [Docker Swarm
-Infrastructures](swarm-deployment.md) section. In particular, **be
+Infrastructures](swarm-deployment.html) section. In particular, **be
 sure that you have created the "traefik-public" network and that
 Traefik has been deployed**.
 
@@ -90,7 +90,7 @@ server has been started on port 8200. Once this is the case, you can
 visit https://master-ip/api/cloud-entry-point, which should return a
 directory of the available resources in JSON format.
 
-![Cloud Entry Point]({{ site.url }}{{ site.baseurl }}/docs/administrators/assets/cloud-entry-point.png)
+![Cloud Entry Point]({{ site.url }}{{ site.baseurl }}/docs/administrators/assets/cloud-entry-point-json.png)
 
 Similarly, you can verify that the web browser interface is available
 by visiting https://master-ip/. You should see the Nuvla UI with a
