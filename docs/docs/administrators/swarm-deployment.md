@@ -13,30 +13,22 @@ deployed for Nuvla:
 
  - **target**: A Docker Swarm infrastructure on which Nuvla will
    **deploy** containers.  This is a basic deployment of Swarm with
-   Minio/NFS for data access and Prometheus for monitoring. Persistent
-   volumes are needed for data storage in production environments.
-   Nuvla can be configured to deploy to any number of target Docker
-   Swarm infrastructures.
+   Minio/NFS for data access and Prometheus for monitoring. Nuvla can
+   be configured to deploy to any number of target Docker Swarm
+   infrastructures.
 
  - **host**: A Docker Swarm infrastructure that will **host** a Nuvla
    deployment. This is a basic deployment of Swarm with Prometheus for
-   monitoring. Persistent volumes are needed to back the Elasticsearch
-   database in production environments.
+   monitoring.
 
-In both cases, persistent volumes are needed for data persistency in
-production environments.
+In both cases, volumes must be used for data persistency in production
+environments.
 
-Before starting an installation, review the entire deployment
-procedure. You may need to customize the provided Docker Compose
-files.
-
-The following sections describe each step of the deployment and
-configuration of a Docker Swarm infrastructure for use with Nuvla. For
-the Docker Swarm installation you will want to clone the
+Before starting, review the entire installation procedure.  The
 [nuvla/deployment](https://github.com/nuvla/deployment) GitHub
-repository to a machine from which you will manage the cluster; for
-the other steps in the configuration, you'll want to clone this
-repository to the master node of the cluster.
+repository contains files that will help you deploy and configure your
+Docker Swarm cluster.  You may need to customize the provided scripts,
+configurations, and Docker Compose files for your deployment.
 
 ## Docker Swarm Cluster
 
@@ -50,35 +42,42 @@ for an overview of Docker Swarm and how to deploy it.
 You may want to consider [Docker
 Machine](https://docs.docker.com/machine/) for installation; it
 automates the deployment of a Docker Swarm cluster on a cloud
-infrastructure. The script `deploy-swarm-exoscale.sh` will use Docker
-Machine to deploy a Swarm cluster on the
+infrastructure.
+
+The nuvla/deployment repository contains a script
+(`deploy-swarm-exoscale.sh`) to deploy a Swarm cluster with Docker
+Machine. Clone this repository:
+
+    git clone https://github.com/nuvla/deployment.git
+
+to a machine that will be convenient for managing your cluster.
+
+This script uses Docker Machine to deploy a Swarm cluster on the
 [Exoscale](https://exoscale.ch) cloud. This script can be modified to
-use a different cloud driver or to customization the configuration.
+use a different cloud driver or to customize the configuration.
 
-If you want to use the `swarm-deploy-exoscale.sh` script (or a variant
-of it) to deploy your Docker Swarm infrastructure, first clone the
-[nuvla/deployment](https://github.com/nuvla/deployment) GitHub
-repository to a convenient Linux/Unix machine.
+In your cloned repository, descend into the `swarm` subdirectory and
+copy `env-example.sh` to `env.sh`. Edit this file, changing the values
+of the variables to customize your installation. The `SSH_KEY` and
+`EXOSCALE_*` variables are the most important for the Swarm
+deployment.
 
-Descend into the `swarm` subdirectory and copy `env-example.sh` to
-`env.sh`. Edit this file, changing the values of the variables to
-customize your installation. Afterwards, run:
+Docker Machine uses SSH to communicate with the virtual machines of
+the cluster. By default the key `${HOME}/.ssh/id_rsa` will be used (or
+created if it does not exist). If you want to use a different key,
+then set the environmental variable `SSH_KEY` in the `env.sh` file.
+
+> **WARNING**: Use an SSH key **without** a password. If you use one
+> with a password, you will be prompted for it, repeatedly. To
+> generate a new SSH key without a password just set SSH_KEY to a file
+> that does not exist.
+
+After your changes, run:
 
     source env.sh
 
 to set all of the environmental variables for the Swarm management
 script. 
-
-Note that Docker Machine uses SSH to communicate with the virtual
-machines of the cluster. By default the key `${HOME}/.ssh/id_rsa` will
-be used (or created if it does not exist). If you want to use a
-different key, then set the environmental variable `SSH_KEY` in the
-`env.sh` file.
-
-**WARNING**: Use an SSH key **WITHOUT** a password. If you use one
-with a password, you will be prompted for it, repeatedly. To generate
-a new SSH key without a password just set SSH_KEY to a file that does
-not exist.
 
 The command to use to create the cluster is:
 
@@ -95,13 +94,25 @@ You will want to note the IP addresses of the Docker Swarm master and
 workers (if any). You can recover these IP addresses by running the
 command `docker-machine ls` if necessary.
 
+You can access your machines with:
+
+    docker-machine ssh dockermachine-1556097484
+    
+using the name of the machine provided in the machine listing.
+
+To tear down the Swarm cluster use the command:
+
+    ./swarm-deploy-exoscale.sh terminate
+
+will terminate all the machines in your Swarm cluster. Use with care.
+
 ## Cluster Firewall Rules
 
-For a **target** infrastructure, the Nuvla service **must** be able to
+For **target** infrastructures, the Nuvla service **must** be able to
 access the services on the cluster. The site's firewall rules must be
-setup to allow **inbound access** to the Docker Swarm API (normally on
-HTTPS port 443) and to the Minio S3 interface (normally on port 9000)
-if deployed.
+setup to allow **inbound access** to the Docker Swarm API and to the
+HTTP(S) ports for other services, e.g. Minio S3.  The nodes in the
+cluster must also be able to communicate between themselves.
 
 In addition, you will want to allow users to access applications that
 they've deployed on the infrastructure. To do this, make sure that
@@ -110,12 +121,36 @@ they've deployed on the infrastructure. To do this, make sure that
 ephemeral ports can be configured via the kernel parameter
 `/proc/sys/net/ipv4/ip_local_port_range`.
 
-For a **host** infrastructure, the firewall must be configured to
-allow **inbound access** to the HTTP (80) and HTTPS (443) ports.
+The following table shows the ports to open for **target**
+infrastructures:
 
-For both types of infrastructures, you will want to allow inbound
-access to for Prometheus (port 3000) from the IP addresses from which
-you will monitor the infrastructure.
+| port | service | inbound addresses |
+| --- | --- | --- |
+| 22 (TCP) | ssh |  management nodes |
+| 8080 (TCP) | traefik |  management nodes | 
+| 4789 (UDP), 7946 (UDP, TCP) | docker |  cluster nodes |
+| 2376-2377 (TCP) | docker |  Nuvla |
+| 80 (TCP), 443 (TCP) | http(s) |  Nuvla, users |
+| 32768-60999 (TCP) | ephemeral ports |  users |
+
+A **host** infrastructure has fewer ports that need to be opened, as
+Nuvla is generally the only publicly accessible service on the system.
+
+The following table shows the ports to open for **host**
+infrastructures:
+
+| port | service | inbound addresses |
+| --- | --- | --- |
+| 22 (TCP) | ssh |  management nodes |
+| 8080 (TCP) | traefik |  management nodes | 
+| 4789 (UDP), 7946 (UDP, TCP) | docker |  cluster nodes |
+| 2376-2377 (TCP) | docker |  management nodes |
+| 80 (TCP), 443 (TCP) | http(s) |  management nodes, users |
+
+> **NOTE**: If you used Docker Machine to deploy your cluster on a
+> cloud, the driver will likely have created a security group.  You
+> can modify this security group, if necessary to expose non-Docker
+> ports, e.g. the ephemeral ports for applications.
 
 ## Create Public Network
 
@@ -133,14 +168,54 @@ those files.
 
 ## Deploy Traefik
 
-Traefik is a general router and load balancer. You can deploy it
-(again for use by other components) with the command:
+Traefik is a general router and load balancer.  Clone the
+nuvla/deployment repository to the master node of your Docker Swarm
+cluster.
+
+There are two versions of the traefik deployment: traefik and
+traefik-prod. The first, suitable for test or demonstration
+deployments, uses a self-signed certificate for connections to the
+HTTPS (443) port; the second, suitable for production, uses Let's
+Encrypt certificates.
+
+### Self-Signed Certificates
+
+To deploy an infrastructure for test or demonstration purposes, use
+the traefik configuration that uses self-signed certificates. You can
+find this in the `swarm/traefik` subdirectory of the repository. 
+
+To deploy traefik:
 
     cd traefik
-    docker-compose up
+    ./generate-certificates.sh
+    docker stack deploy -c docker-compose.yml traefik
+
+This will generate temporary, self-signed certificates and bring up
+traefik.
 
 If you want to change the name of the public network, the compose file
 must be modified.
+
+### Let's Encrypt
+
+To deploy a production infrastructure with a certificate obtained from
+[Let's Encrypt](https://letsencrypt.org/), use the configuration that
+can be found in the `swarm/traefik-prod` subdirectory.
+
+You will need to have access to an internet domain to use Let's
+Encrypt certificates. See the [Let's Encrypt
+documentation](https://letsencrypt.org/docs/) for instructions on how
+to configure your (sub)domain.
+
+Modify the configuration file `swarm/traefik-prod/traefik.toml`, to
+add the name of your domain. Once that's done, you can deploy traefik
+with:
+
+    cd traefik-prod
+    docker stack deploy -c docker-compose.yml traefik
+
+After deploying traefik, verify that the correct certificate is being
+used. 
 
 ## Monitoring
 
@@ -149,7 +224,8 @@ extremely helpful in understanding the overall load and for diagnosing
 any problems that arise. We recommend using Prometheus to monitor the
 cluster.
 
-To deploy Prometheus with the standard configuration, run the command:
+To deploy Prometheus with the standard configuration (from a cloned
+version of the nuvla/deployment repository), run the command:
 
     cd monitoring
     docker stack deploy -c docker-compose.yml prometheus
