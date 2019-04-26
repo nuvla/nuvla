@@ -74,8 +74,9 @@ inspecting the logs.
 Once the database services have been deployed, you can then deploy the
 core services for Nuvla.  In your clone of the nuvla/deployment
 repository, navigate to the "prod/core" directory. To do so, execute
-the command:
+the commands:
 
+    ./generate-certificates.sh
     docker stack deploy -c docker-compose.yml nuvla
 
 Verify that all of the services start by listing them with Docker.
