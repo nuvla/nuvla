@@ -214,16 +214,19 @@ Encrypt certificates. See the [Let's Encrypt
 documentation](https://letsencrypt.org/docs/) for instructions on how
 to configure your (sub)domain.
 
-Modify the configuration file `swarm/traefik-prod/traefik.toml`, to
-add the name of your domain and your email address. Once that's done, 
-you can deploy traefik with:
+Modify the configuration file
+`swarm/traefik-prod/traefik/traefik.toml`, to add the name of your
+domain and your email address. Once that's done, you can deploy
+traefik with:
 
     cd traefik-prod
+    chmod 0600 traefik/acme.json 
     docker stack deploy -c docker-compose.yml traefik
 
 After deploying traefik, verify that the correct certificate is being
-used. Traefik store the generated certificate and private key 
-in following file `traefik-prod/traefik/acme.json`. Take a look.
+used. Traefik store the generated certificate and private key in
+following file `traefik-prod/traefik/acme.json`. Take a look. If
+something goes wrong, take a look at the traefik logs.
 
 ## Monitoring
 
