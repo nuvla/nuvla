@@ -22,7 +22,7 @@ more information on the latest builds.
 | python-library | [![Build Status](https://travis-ci.com/nuvla/python-library.svg?branch=master)](https://travis-ci.com/nuvla/python-library) |
 | ring | [![Build Status](https://travis-ci.com/nuvla/ring.svg?branch=master)](https://travis-ci.com/nuvla/ring) |
 | api-server | [![Build Status](https://travis-ci.com/nuvla/api-server.svg?branch=master)](https://travis-ci.com/nuvla/api-server) |
-| ui | [![Build Status](https://travis-ci.com/nuvla/ui.svg?branch=master)](https://travis-ci.com/nuvla/ui) |
+| [ui](https://github.com/nuvla/ui) | [![Build Status](https://travis-ci.com/nuvla/ui.svg?branch=master)](https://travis-ci.com/nuvla/ui) |
 | job-engine | [![Build Status](https://travis-ci.com/nuvla/job-engine.svg?branch=master)](https://travis-ci.com/nuvla/job-engine) |
 | job-tools | [![Build Status](https://travis-ci.com/nuvla/job-tools.svg?branch=master)](https://travis-ci.com/nuvla/job-tools) |
 
