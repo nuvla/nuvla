@@ -20,12 +20,12 @@ more information on the latest builds.
 | repository | status |
 | ---- | ---- |
 | [clojure-library](https://github.com/nuvla/clojure-library) | [![Build Status](https://travis-ci.com/nuvla/clojure-library.svg?branch=master)](https://travis-ci.com/nuvla/clojure-library) |
-| [python-library](https://github.com/nuvla/python-library) | [![Build Status](https://travis-ci.com/nuvla/python-library.svg?branch=master)](https://travis-ci.com/nuvla/python-library) |
+| [python-library](https://github.com/nuvla/python-library) | [![Build Status](https://github.com/nuvla/python-library/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/python-library/actions/workflows/main.yml) |
 | [ring](https://github.com/nuvla/ring) | [![Build Status](https://travis-ci.com/nuvla/ring.svg?branch=master)](https://travis-ci.com/nuvla/ring) |
-| [api-server](https://github.com/nuvla/api-server) | [![Build Status](https://travis-ci.com/nuvla/api-server.svg?branch=master)](https://travis-ci.com/nuvla/api-server) |
-| [ui](https://github.com/nuvla/ui) | [![Build Status](https://travis-ci.com/nuvla/ui.svg?branch=master)](https://travis-ci.com/nuvla/ui) |
-| [job-engine](https://github.com/nuvla/job-engine) | [![Build Status](https://travis-ci.com/nuvla/job-engine.svg?branch=master)](https://travis-ci.com/nuvla/job-engine) |
-| [job-tools](https://github.com/nuvla/job-tools) | [![Build Status](https://travis-ci.com/nuvla/job-tools.svg?branch=master)](https://travis-ci.com/nuvla/job-tools) |
+| [api-server](https://github.com/nuvla/api-server) | [![Build Status](https://github.com/nuvla/api-server/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/api-server/actions/workflows/main.yml) |
+| [ui](https://github.com/nuvla/ui) | [![Build Status](https://github.com/nuvla/ui/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/ui/actions/workflows/main.yml) |
+| [job-engine](https://github.com/nuvla/job-engine) | [![Build Status](https://github.com/nuvla/job-engine/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/job-engine/actions/workflows/main.yml) |
+| [job-tools](https://github.com/nuvla/job-tools) | [![Build Status](https://github.com/nuvla/job-tools/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/job-tools/actions/workflows/main.yml) |
 
 ## Copyright
 
