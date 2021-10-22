@@ -14,8 +14,7 @@ organization](https://github.com/nuvla/) on GitHub.
 
 ## Build Status
 
-The Travis CI [Nuvla build page](https://travis-ci.com/nuvla) contains
-more information on the latest builds.
+To get more information on the latest builds click on the build status badges below.
 
 | repository | status |
 | ---- | ---- |
