@@ -37,7 +37,7 @@ To get more information on the latest builds click on the build status badges be
 | [ring](https://github.com/nuvla/ring) | [![Build Status](https://travis-ci.com/nuvla/ring.svg?branch=master)](https://travis-ci.com/nuvla/ring) |
 | [clojure-library](https://github.com/nuvla/clojure-library) | [![Build Status](https://travis-ci.com/nuvla/clojure-library.svg?branch=master)](https://travis-ci.com/nuvla/clojure-library) |
 | [api-server](https://github.com/nuvla/api-server) | [![Build Status](https://github.com/nuvla/api-server/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/api-server/actions/workflows/main.yml) |
-| [ui](https://github.com/nuvla/ui) | [![Build Status](https://github.com/nuvla/ui/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/ui/actions/workflows/BUILD.yml) |
+| [ui](https://github.com/nuvla/ui) | [![Build Status](https://github.com/nuvla/ui/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/nuvla/ui/actions/workflows/build.yml) |
 | [python-library](https://github.com/nuvla/python-library) | [![Build Status](https://github.com/nuvla/python-library/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/python-library/actions/workflows/main.yml) |
 | [job-engine](https://github.com/nuvla/job-engine) | [![Build Status](https://github.com/nuvla/job-engine/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/job-engine/actions/workflows/main.yml) |
 | [job-tools](https://github.com/nuvla/job-tools) | [![Build Status](https://github.com/nuvla/job-tools/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/nuvla/job-tools/actions/workflows/main.yml) |
