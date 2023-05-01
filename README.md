@@ -45,7 +45,7 @@ To get more information on the latest builds click on the build status badges be
 
 ## Copyright
 
-Copyright &copy; 2022, SixSq SA
+Copyright &copy; SixSq SA
 
 ## License
 
